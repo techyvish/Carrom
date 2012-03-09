@@ -1,0 +1,39 @@
+-- This file was generated with SpriteHelper - Available on Mac App Store
+-- For more info please visit http://spritehelper.wordpress.com/
+
+-- The code generated here reflects only the sprites that are visible in the table view.
+-- So if you have a search by name filter or a image filter only the sprites in the filter will be saved here
+############### COCOS 2D WITH CHIPMUNK COPY/PASTE CODE ###################
+############### Create a new project with Cocos2D With Chipmunk template ###################
+PLEASE INCLUDE IN YOUR PROJECT Resources THE IMAGE FOR THIS SCENE: pointer.png
+
+
+######## PUT THIS CODE IN THE INITIALIZATION FUNCTION AFTER YOU HAVE CREATED THE BOX2D WORLD 
+ OR CREATE YOUR OWN FUNCTION AND PUT THIS CODE IN IT######
+##This part creates the sprites and the polygon shapes #
+
+
+FEATURE NOT AVAILABLE IN FREE VERSION
+The free version does not show true vertices in the sprite.
+The information you see here is just an example and does not reflect the real data.
+int pointer_positionX = 100; //PUT YOUR OWN VALUE HERE
+int pointer_positionY = 100; //PUT YOUR OWN VALUE HERE
+CCSprite *pointer_Sprite = [CCSprite spriteWithFile:@"pointer.png" rect:CGRectMake(100,100, 100, 100)];
+pointer_Sprite.position = ccp(pointer_positionX, pointer_positionY);
+[self addChild:pointer_Sprite];
+int dimension_pointer = 4;
+CGPoint vertices_pointer[] = {
+ccp(-50.000000f, 50.000000f),
+ccp(50.000000f, 50.000000f),
+ccp(50.000000f, -50.000000f),
+ccp(-50.000000f, -50.000000f)};
+cpBody *body_pointer = cpBodyNew(1.0f, cpMomentForPoly(1.0f, dimension_pointer, vertices_pointer, CGPointZero));
+body_pointer->p = ccp(100, 100); //ADD YOUR VALUES HERE
+cpSpaceAddBody(space, body_pointer);
+cpShape* shape_pointer = cpPolyShapeNew(body_pointer, dimension_pointer, vertices_pointer, CGPointZero);
+shape_pointer->e = 0.5f;
+ shape_pointer->u = 0.5f;
+shape_pointer->data = pointer_Sprite;
+cpSpaceAddShape(space, shape_pointer);
+
+

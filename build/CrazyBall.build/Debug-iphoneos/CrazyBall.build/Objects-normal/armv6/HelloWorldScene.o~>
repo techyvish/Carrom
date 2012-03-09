@@ -1,0 +1,2 @@
+/Users/vishal/Documents/Playground/CrazyBall/Classes/HelloWorldScene.m: In function '-[Carrom ccTouchMoved:withEvent:]':
+/Users/vishal/Documents/Playground/CrazyBall/Classes/HelloWorldScene.m:406: error: expected expression before ',' token

@@ -1,0 +1,236 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+      <link rel="stylesheet" type="text/css" href="functor_files/format.css">
+      <title>The Function Pointer Tutorials - Functors</title>
+      <meta name="robots" content="INDEX,FOLLOW">
+      <meta name="keywords" content="functor, closure, function pointer, encapsulate, member, template, C, C++, pointer, function">
+      <meta name="description" content="Functors can encapsulate pointers to C functions and to C++ member functions. Thus you can build up a list of pointers to arbitrary functions. You find and introduction to the concept of functors and example code.">
+</head><body>
+
+
+<!-- Top of page -->
+<a name="top"></a>
+
+
+<!--INC:"FptLogo.inc"--><!-- Logo -->
+<center><a href="http://www.newty.de/"><img src="functor_files/fpt.gif" alt="Logo" border="0" height="27" width="473"></a></center>
+
+<!--/INC:"FptLogo.inc"-->
+
+
+<!-- Navigation -->
+<br>
+<table class="NavTable">
+<tbody><tr>
+    <td class="NewtyMain" width="1%"><a href="http://www.newty.de/index.html">newty.de</a></td>
+    <td class="NewtyMain" width="1%"><a href="http://www.newty.de/about.html">About</a>&nbsp;&nbsp;</td>
+    <td width="1%">&nbsp;&nbsp;<a href="http://www.newty.de/fpt/dload.html">Download</a></td>
+    <td width="1%"><a href="http://www.newty.de/fpt/links.html">Links</a></td>
+    <td width="1%"><a href="http://www.newty.de/fpt/disclaimer.html">Disclaimer</a></td>
+    <td width="1%"><a href="http://www.newty.de/fpt/index.html">Index</a></td>
+    <td align="right" width="100%"><a href="http://www.newty.de/contact.html">Contact</a></td>
+</tr></tbody></table>
+
+
+<!-- Index -->
+<h1>The Function Pointer Tutorials</h1>
+<table border="0" cellpadding="2" cellspacing="2">
+  <tbody><tr><td>&nbsp;<img src="functor_files/arrow_r.gif"> <a href="http://www.newty.de/fpt/index.html">Extensive Index</a></td></tr>
+  <tr><td>&nbsp;<img src="functor_files/arrow_r.gif"> <a href="http://www.newty.de/fpt/intro.html">1.&nbsp; Introduction to Function Pointers</a></td></tr>
+  <tr><td>&nbsp;<img src="functor_files/arrow_r.gif"> <a href="http://www.newty.de/fpt/fpt.html">2.&nbsp; The Syntax of C and C++ Function Pointers</a></td></tr>
+  <tr><td>&nbsp;<img src="functor_files/arrow_r.gif"> <a href="http://www.newty.de/fpt/callback.html">3.&nbsp; How to Implement Callbacks in C and C++ ?</a></td></tr>
+  <tr><td class="NavActive">&nbsp;<img src="functor_files/arrow_d.gif"> <a href="#chapter4">4.&nbsp; Functors to encapsulate C and C++ Function Pointers</a></td></tr>
+  <tr><td>&nbsp;<img src="functor_files/arrow_r.gif"> <a href="http://www.newty.de/fpt/chapt5.html">5.&nbsp; Topic Specific Links</a></td></tr>
+</tbody></table>
+
+
+
+<!-- 4. Functors to encapsulate C and C++ Function Pointers -->
+<br>
+<div class="ShiftRight"><a href="http://www.newty.de/fpt/index.html"><img src="functor_files/index.gif" alt="Main Index" border="0" height="21" width="49"></a>&nbsp;<a href="#top"><img src="functor_files/top.gif" alt="top" border="0" height="21" width="39"></a></div>
+<div class="RightMargin"><a name="chapter4"></a><h2>4.&nbsp; Functors to encapsulate C and C++ Function Pointers</h2></div>
+
+<table>
+       <tbody><tr><td style="padding: 2px;">&nbsp;&nbsp;&nbsp;<a href="#intro">4.1&nbsp; What are Functors ?</a></td></tr>
+       <tr><td style="padding: 2px;">&nbsp;&nbsp;&nbsp;<a href="#functors">4.2&nbsp; How to Implement Functors ?</a></td></tr>
+       <tr><td style="padding: 2px;">&nbsp;&nbsp;&nbsp;<a href="#example">4.3&nbsp; Example of How to Use Functors</a></td></tr>
+</tbody></table>
+
+
+<!-- 4.1 -->
+<a name="intro"></a><h3>4.1&nbsp; What are Functors ?</h3>
+<p>Functors are <i>functions with a state</i>. In C++ you can realize 
+them as a class with one or more private members to store the state and 
+with an overloaded operator () to execute the function. Functors can 
+encapsulate C and C++ function pointers employing the concepts templates
+ and polymorphism. You can build up a list of pointers to member 
+functions of arbitrary classes and call them all through the same 
+interface without bothering about their class or the need of a pointer 
+to an instance. All the functions just have got to have the same 
+return-type and calling parameters. Sometimes functors are also known as
+ closures. You can also use functors to implement callbacks.</p>
+
+
+<!-- 4.2 -->
+<div class="ShiftRight"><a href="http://www.newty.de/fpt/index.html"><img src="functor_files/index.gif" alt="Main Index" border="0" height="21" width="49"></a>&nbsp;<a href="#top"><img src="functor_files/top.gif" alt="top" border="0" height="21" width="39"></a></div>
+<div class="RightMargin"><a name="functors"></a><h3>4.2&nbsp; How to Implement Functors ?</h3></div>
+
+<p>First you need a base class <b>TFunctor</b> which provides a virtual function named <i>Call</i> or a virtually overloaded operator <i>()</i>
+ with which you will be able to call the member function. It's up to you
+ if you prefer the overloaded operator or a function like <i>Call</i>. From the base class you derive a <b>template</b> class <b>TSpecificFunctor</b> which is initialized with a pointer to an object and a pointer to a member function in its constructor. <b>The derived class overrides the function <i>Call</i> and/or the operator <i>()</i> of the base class:</b>
+ In the overridden version you call the member function using the stored
+ pointers to the object and to the member function. If you are not sure 
+of how to use function pointers take a look at my <a href="http://www.newty.de/FPT/em_fpt.html"><b>Introduction to Function Pointers</b></a>.</p>
+
+
+<!-- Code 4.2 -->
+<pre><code>
+   <font color="#000080"><i>//-----------------------------------------------------------------------------------------
+   // 4.2 How to Implement Functors</i></font>
+
+   <font color="#000080"><i>// abstract base class</i></font>
+   <b>class</b> TFunctor
+   {
+   <b>public</b>:
+
+      <font color="#000080"><i>// two possible functions to call member function. virtual cause derived
+      // classes will use a pointer to an object and a pointer to a member function
+      // to make the function call</i></font>
+      <b>virtual void operator</b>()(<b>const char</b>* string)=0;  <font color="#000080"><i>// call using operator</i></font>
+      <b>virtual void</b> Call(<b>const char</b>* string)=0;        <font color="#000080"><i>// call using function</i></font>
+   };
+
+
+   <font color="#000080"><i>// derived template class</i></font>
+   <b>template</b> &lt;<b>class</b> TClass&gt; <b>class</b> TSpecificFunctor : <b>public</b> TFunctor
+   {
+   <b>private</b>:
+      <b>void</b> (TClass::*fpt)(<b>const char</b>*);   <font color="#000080"><i>// pointer to member function</i></font>
+      TClass* pt2Object;                  <font color="#000080"><i>// pointer to object</i></font>
+
+   <b>public</b>:
+
+      <font color="#000080"><i>// constructor - takes pointer to an object and pointer to a member and stores
+      // them in two private variables</i></font>
+      TSpecificFunctor(TClass* _pt2Object, <b>void</b>(TClass::*_fpt)(<b>const char</b>*))
+         { pt2Object = _pt2Object;  fpt=_fpt; };
+
+      <font color="#000080"><i>// override operator "()"</i></font>
+      <b>virtual void operator</b>()(<b>const char</b>* string)
+       { (*pt2Object.*fpt)(string);};              <font color="#000080"><i>// execute member function</i></font>
+
+      <font color="#000080"><i>// override function "Call"</i></font>
+      <b>virtual void</b> Call(<b>const char</b>* string)
+        { (*pt2Object.*fpt)(string);};             <font color="#000080"><i>// execute member function</i></font>
+   };
+</code></pre>
+
+
+
+<!-- 4.3 Example of How to Use Functors -->
+<div class="ShiftRight"><a href="http://www.newty.de/fpt/index.html"><img src="functor_files/index.gif" alt="Main Index" border="0" height="21" width="49"></a>&nbsp;<a href="#top"><img src="functor_files/top.gif" alt="top" border="0" height="21" width="39"></a></div>
+<div class="RightMargin"><a name="example"></a><h3>4.3&nbsp; Example of How to Use Functors</h3></div>
+
+<p>In the following example we have two dummy classes which provide a function called <i>Display</i> which returns nothing <i>(void)</i> and needs a string <i>(const char*)</i> to be passed. We create an array with two pointers to <b>TFunctor</b> and initialize the array entries with two pointers to <b>TSpecificFunctor</b> which encapsulate the pointer to an object and the pointer to a member of <i>TClassA</i> respectively <i>TClassB</i>. Then we use the functor-array to call the respective member functions. <b>No pointer to an object is needed to make the function calls and you do not have to bother about the classes anymore!</b></p>
+
+
+
+<!-- Code 4.3 -->
+<pre><code>
+   <font color="#000080"><i>//-----------------------------------------------------------------------------------------</i></font>
+   <font color="#000080"><i>// 4.3 Example of How to Use Functors</i></font>
+
+   <font color="#000080"><i>// dummy class A</i></font>
+   <b>class</b> TClassA{
+   <b>public</b>:
+
+      TClassA(){};
+      <b>void</b> Display(<b>const char</b>* text) { cout &lt;&lt; text &lt;&lt; endl; };
+
+      <font color="#000080"><i>/* more of TClassA */</i></font>
+   };
+
+   <font color="#000080"><i>// dummy class B</i></font>
+   <b>class</b> TClassB{
+   <b>public</b>:
+
+      TClassB(){};
+      <b>void</b> Display(<b>const char</b>* text) { cout &lt;&lt; text &lt;&lt; endl; };
+
+      <font color="#000080"><i>/* more of TClassB */</i></font>
+   };
+
+
+   <font color="#000080"><i>// main program</i></font>
+   <b>int</b> main(<b>int</b> <font color="#000080"><i>/*argc*/</i></font>, <b>char</b>* <font color="#000080"><i>/*argv[]*/</i></font>)
+   {
+      <font color="#000080"><i>// 1. instantiate objects of TClassA and TClassB</i></font>
+      TClassA objA;
+      TClassB objB;
+
+
+      <font color="#000080"><i>// 2. instantiate TSpecificFunctor objects ...</i></font>
+      <font color="#000080"><i>//    a ) functor which encapsulates pointer to object and to member of TClassA</i></font>
+      TSpecificFunctor&lt;TClassA&gt; specFuncA(&amp;objA, &amp;TClassA::Display);
+
+      <font color="#000080"><i>//    b) functor which encapsulates pointer to object and to member of TClassB</i></font>
+      TSpecificFunctor&lt;TClassB&gt; specFuncB(&amp;objB, &amp;TClassB::Display);
+
+
+      <font color="#000080"><i>// 3. make array with pointers to TFunctor, the base class, and initialize it</i></font>
+      TFunctor* vTable[] = { &amp;specFuncA, &amp;specFuncB };
+
+
+      <font color="#000080"><i>// 4. use array to call member functions without the need of an object</i></font>
+      vTable[<font color="#0000ff">0</font>]-&gt;Call(<font color="#0000ff">"TClassA::Display called!"</font>);        <font color="#000080"><i>// via function "Call"</i></font>
+      (*vTable[<font color="#0000ff">1</font>])   (<font color="#0000ff">"TClassB::Display called!"</font>);        <font color="#000080"><i>// via operator "()"</i></font>
+
+
+      <font color="#000080"><i>// hit enter to terminate</i></font>
+      cout &lt;&lt; endl &lt;&lt; <font color="#0000ff">"Hit Enter to terminate!"</font> &lt;&lt; endl;
+      cin.get();
+
+      <b>return</b> <font color="#0000ff">0</font>;
+   }
+</code></pre>
+
+
+<!-- Index and top -->
+<a href="http://www.newty.de/fpt/index.html"><img src="functor_files/index.gif" alt="Main Index" border="0" height="21" width="49"></a>&nbsp;<a href="#top"><img src="functor_files/top.gif" alt="top" border="0" height="21" width="39"></a>
+
+
+<!--INC:"FptDload.inc"--><!-- Download Information -->
+<br><br>
+<center><table cellpadding="5" cellspacing="5">
+<tbody><tr>
+    <td><a href="http://www.newty.de/fpt/zip/e_fpt.ps"><img src="functor_files/ps2.gif" alt="Download Postscript" border="0" height="32" width="32"></a></td>
+    <td><a href="http://www.newty.de/fpt/zip/e_fpt.pdf"><img src="functor_files/pdf.gif" alt="Download PDF" border="0" height="32" width="32"></a></td>
+    <td><img src="functor_files/engFlag.gif" alt="English" border="0" height="29" width="48"></td>
+    <td>You can download a <a href="http://www.newty.de/fpt/zip/e_fpt.ps">Postscript</a> or a  <a href="http://www.newty.de/fpt/zip/e_fpt.pdf">PDF</a> of the tutorials about Function Pointers, Callbacks and Functors!</td>
+</tr>
+<tr>
+    <td><a href="http://www.newty.de/fpt/zip/f_fpt.ps"><img src="functor_files/ps2.gif" alt="Télécharger Postscript" border="0" height="32" width="32"></a></td>
+    <td><a href="http://www.newty.de/fpt/zip/f_fpt.pdf"><img src="functor_files/pdf.gif" alt="Télécharger PDF" border="0" height="32" width="32"></a></td>
+    <td><img src="functor_files/fflag.gif" alt="French" border="0" height="32" width="48"></td>
+    <td>Vous pouvez télécharger une version <a href="http://www.newty.de/fpt/zip/f_fpt.ps">Postscript</a> ou <a href="http://www.newty.de/fpt/zip/f_fpt.pdf">PDF</a> de ce turoriel sur les pointeurs de fonctions, les fonction de rappel et les <i>functors</i>!</td>
+</tr>
+<tr>
+    <td colspan="3"><a href="http://www.newty.de/fpt/zip/source.zip"><img src="functor_files/source.gif" alt="Download Example Source" border="0" height="36" width="36"></a></td>
+    <td>You can also download the <a href="http://www.newty.de/fpt/zip/source.zip">zipped source-files</a> with all examples of the tutorials!</td>
+</tr>
+</tbody></table></center><!--/INC:"FptDload.inc"-->
+
+
+<!--INC:"FptNewsgroup.inc"--><!-- Newsgroup -->
+<br>
+<center><table border="0" cellpadding="0" cellspacing="10"><tbody><tr>
+<td><img src="functor_files/smile.gif" alt="smile" border="0" height="55" width="55"></td>
+<td><a href="http://www.semnet.org/lore/thread.php?group=semnet.function-pointer"><b>Guestbook &amp; Newsgroup</b></a><b> about function pointers!</b></td>
+<td><img src="functor_files/smile.gif" alt="new" border="0" height="55" width="55"></td>
+</tr></tbody></table></center>
+<!--/INC:"FptNewsgroup.inc"-->
+
+
+<!--INC:"FptFooter2.inc"--><!-- Footer + Lsc link -->
+<p><small><b>last updated:</b> 06 January 2005 &nbsp; © 2000-2005 by Lars Haendel<br>The source code presented was highlighted using my free <a href="http://www.newty.de/lsc/index.html">Source to HTML Converter</a> tool.</small></p><!--/INC:"FptFooter2.inc"-->
+</body></html>

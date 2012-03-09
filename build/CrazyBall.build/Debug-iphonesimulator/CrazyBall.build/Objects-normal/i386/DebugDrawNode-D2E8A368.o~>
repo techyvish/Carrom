@@ -1,0 +1,37 @@
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: In function 'eachShapeDraw':
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:25: error: 'cpShape' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:25: error: (Each undeclared identifier is reported only once
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:25: error: for each function it appears in.)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:25: error: 'shape' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:25: error: expected expression before ')' token
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:27: error: 'CP_CIRCLE_SHAPE' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:29: error: 'cpCircleShape' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:29: error: 'crc' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:29: error: expected expression before ')' token
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:30: error: 'cpVect' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:30: error: expected ';' before 'c'
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:31: error: 'c' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:33: error: 'CP_POLY_SHAPE' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:35: error: 'cpPolyShape' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:35: error: 'poly' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:35: error: expected expression before ')' token
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:38: error: 'CP_SEGMENT_SHAPE' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:40: error: 'cpSegmentShape' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:40: error: 'segment' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:40: error: expected expression before ')' token
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:45: error: 'seg' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:45: error: expected expression before ')' token
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: At top level:
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:51: error: expected ')' before 'cpSpace'
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: In function '+[DebugDrawNode nodeWithSpace:]':
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:52: warning: no '-initWithSpace:' method found
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:52: warning: (Messages without a matching method signature
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:52: warning: will be assumed to return 'id' and accept
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:52: warning: '...' as arguments.)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: At top level:
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:55: error: expected ')' before 'cpSpace'
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: In function '-[DebugDrawNode initWithSpace:]':
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:57: error: '_space' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m: In function '-[DebugDrawNode draw]':
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:63: error: '_space' undeclared (first use in this function)
+/Users/vishal/Documents/Playground/CrazyBall/Classes/Utility/DebugDrawNode.m:64: warning: implicit declaration of function 'cpSpaceHashEach'
