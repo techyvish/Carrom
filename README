@@ -1,1 +1,15 @@
 Carrom Using cocos2d
+
+
+
+Overview:
+
+Carrom is a Pool like game. I’ve created code base for those who wants to learn iPhone game programming. 
+
+It also contains interactive Physics using chipmunk. I've done little modification to satisfy some physics requirements for board game's top-down view. 
+
+!! Please don't compile this code and submit to appstore !! 
+Use this codebase for your reference.
+
+ Enjoy !!!
+
