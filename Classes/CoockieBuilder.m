@@ -36,7 +36,7 @@
 
 -(Coockie*) getResult {
 	
-	return coockie;
+	return self.coockie;
 }
 
 

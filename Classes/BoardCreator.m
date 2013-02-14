@@ -66,18 +66,18 @@
 	}
 	[builder release];
 	[director release];
-
-	
+    
 	CoockieBuilder* whiteBuilder = [[CoockieBuilder alloc]initWithSpriteFileName:@"coockie.png" 
 																   andLayer:layer];
 	ShapeBuildDirector* whiteDirector = [[ShapeBuildDirector alloc]initWithShapeBuilder:whiteBuilder];
 	
 	for ( int i = 1 ; i <= 3 ; i ++ ) {
-		
 		[whiteDirector buildShape];
-		Coockie* coockie = [builder getResult];
+        NSLog(@"Test");
+		Coockie* coockie = [whiteBuilder getResult];
 		[coockie setAtPosition:cpv( wins.width / 2.0 + i * 30.0 , wins.height / 2.0 - 30 )];
 	}
+    
 	[whiteBuilder release];
 	[whiteDirector release];
 	

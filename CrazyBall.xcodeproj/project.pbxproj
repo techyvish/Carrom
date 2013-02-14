@@ -70,7 +70,6 @@
 		C900F438135C00CB00C3D3F5 /* small_arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = C900F437135C00CB00C3D3F5 /* small_arrow.png */; };
 		C9030DE613656FD7009C80D4 /* woodboard.png in Resources */ = {isa = PBXBuildFile; fileRef = C9030DE513656FD7009C80D4 /* woodboard.png */; };
 		C9030E3613658391009C80D4 /* woodboard-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C9030E3513658391009C80D4 /* woodboard-hd.png */; };
-		C90310A513674001009C80D4 /* coockie-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C90310A413674001009C80D4 /* coockie-hd.png */; };
 		C9065B0D137709CF001D773F /* ShapeBuilder.h in Resources */ = {isa = PBXBuildFile; fileRef = C9065B0B137709CF001D773F /* ShapeBuilder.h */; };
 		C9065B0E137709CF001D773F /* ShapeBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = C9065B0C137709CF001D773F /* ShapeBuilder.m */; };
 		C9065B1213770A61001D773F /* CoockieBuilder.h in Resources */ = {isa = PBXBuildFile; fileRef = C9065B1013770A61001D773F /* CoockieBuilder.h */; };
@@ -92,6 +91,10 @@
 		C918C8C71359983100EEC506 /* Coockie.m in Sources */ = {isa = PBXBuildFile; fileRef = C918C8C51359983100EEC506 /* Coockie.m */; };
 		C918C8F91359A4B900EEC506 /* GameContext.h in Resources */ = {isa = PBXBuildFile; fileRef = C918C8F71359A4B900EEC506 /* GameContext.h */; };
 		C918C8FA1359A4B900EEC506 /* GameContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = C918C8F81359A4B900EEC506 /* GameContext.mm */; };
+		C958605716CC6B2800903799 /* coockie-black-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C958605616CC6B2700903799 /* coockie-black-hd.png */; };
+		C958605916CC6B6900903799 /* coockie.png in Resources */ = {isa = PBXBuildFile; fileRef = C958605816CC6B6900903799 /* coockie.png */; };
+		C958605B16CC6CB400903799 /* Striker-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C958605A16CC6CB400903799 /* Striker-hd.png */; };
+		C958605D16CC6FD400903799 /* coockie-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C958605C16CC6FD400903799 /* coockie-hd.png */; };
 		C99C7E1B1390CC2A00CA2751 /* pointer.png in Resources */ = {isa = PBXBuildFile; fileRef = C99C7E1A1390CC2A00CA2751 /* pointer.png */; };
 		C99C7E1D1390CF6B00CA2751 /* pointer-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C99C7E1C1390CF6B00CA2751 /* pointer-hd.png */; };
 		C99C7E2D1392B05D00CA2751 /* pointer2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = C99C7E2B1392B05D00CA2751 /* pointer2-hd.png */; };
@@ -444,7 +447,6 @@
 		C900F437135C00CB00C3D3F5 /* small_arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_arrow.png; sourceTree = "<group>"; };
 		C9030DE513656FD7009C80D4 /* woodboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = woodboard.png; sourceTree = "<group>"; };
 		C9030E3513658391009C80D4 /* woodboard-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "woodboard-hd.png"; sourceTree = "<group>"; };
-		C90310A413674001009C80D4 /* coockie-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "coockie-hd.png"; sourceTree = "<group>"; };
 		C9065B0B137709CF001D773F /* ShapeBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.objj.h; path = ShapeBuilder.h; sourceTree = "<group>"; };
 		C9065B0C137709CF001D773F /* ShapeBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapeBuilder.m; sourceTree = "<group>"; };
 		C9065B1013770A61001D773F /* CoockieBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.objj.h; path = CoockieBuilder.h; sourceTree = "<group>"; };
@@ -464,8 +466,12 @@
 		C90A30EC1369E4430040E80C /* Striker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Striker.png; sourceTree = "<group>"; };
 		C918C8C41359983100EEC506 /* Coockie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Coockie.h; sourceTree = "<group>"; };
 		C918C8C51359983100EEC506 /* Coockie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Coockie.m; sourceTree = "<group>"; };
-		C918C8F71359A4B900EEC506 /* GameContext.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.objj.h; fileEncoding = 4; path = GameContext.h; sourceTree = "<group>"; };
+		C918C8F71359A4B900EEC506 /* GameContext.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.objj.h; fileEncoding = 4; lastKnownFileType = file; path = GameContext.h; sourceTree = "<group>"; };
 		C918C8F81359A4B900EEC506 /* GameContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameContext.mm; sourceTree = "<group>"; };
+		C958605616CC6B2700903799 /* coockie-black-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "coockie-black-hd.png"; sourceTree = "<group>"; };
+		C958605816CC6B6900903799 /* coockie.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coockie.png; sourceTree = "<group>"; };
+		C958605A16CC6CB400903799 /* Striker-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Striker-hd.png"; sourceTree = "<group>"; };
+		C958605C16CC6FD400903799 /* coockie-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "coockie-hd.png"; sourceTree = "<group>"; };
 		C99C7E1A1390CC2A00CA2751 /* pointer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pointer.png; sourceTree = "<group>"; };
 		C99C7E1C1390CF6B00CA2751 /* pointer-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pointer-hd.png"; sourceTree = "<group>"; };
 		C99C7E2B1392B05D00CA2751 /* pointer2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pointer2-hd.png"; sourceTree = "<group>"; };
@@ -1010,13 +1016,16 @@
 		50F4144210692EE7002A0D5E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C958605C16CC6FD400903799 /* coockie-hd.png */,
+				C958605A16CC6CB400903799 /* Striker-hd.png */,
+				C958605816CC6B6900903799 /* coockie.png */,
+				C958605616CC6B2700903799 /* coockie-black-hd.png */,
 				C99C7E2B1392B05D00CA2751 /* pointer2-hd.png */,
 				C99C7E2C1392B05D00CA2751 /* pointer2.png */,
 				C99C7E1C1390CF6B00CA2751 /* pointer-hd.png */,
 				C99C7E1A1390CC2A00CA2751 /* pointer.png */,
 				C90A30EC1369E4430040E80C /* Striker.png */,
 				C9FD1F051367BB0400FA0065 /* coockie-black.png */,
-				C90310A413674001009C80D4 /* coockie-hd.png */,
 				C9030E3513658391009C80D4 /* woodboard-hd.png */,
 				C9030DE513656FD7009C80D4 /* woodboard.png */,
 				00796555135FC55B00ADC38A /* cokie2.png */,
@@ -1688,13 +1697,16 @@
 				00796556135FC55B00ADC38A /* cokie2.png in Resources */,
 				C9030DE613656FD7009C80D4 /* woodboard.png in Resources */,
 				C9030E3613658391009C80D4 /* woodboard-hd.png in Resources */,
-				C90310A513674001009C80D4 /* coockie-hd.png in Resources */,
 				C9FD1F061367BB0400FA0065 /* coockie-black.png in Resources */,
 				C90A30ED1369E4430040E80C /* Striker.png in Resources */,
 				C99C7E1B1390CC2A00CA2751 /* pointer.png in Resources */,
 				C99C7E1D1390CF6B00CA2751 /* pointer-hd.png in Resources */,
 				C99C7E2D1392B05D00CA2751 /* pointer2-hd.png in Resources */,
 				C99C7E2E1392B05D00CA2751 /* pointer2.png in Resources */,
+				C958605716CC6B2800903799 /* coockie-black-hd.png in Resources */,
+				C958605916CC6B6900903799 /* coockie.png in Resources */,
+				C958605B16CC6CB400903799 /* Striker-hd.png in Resources */,
+				C958605D16CC6FD400903799 /* coockie-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

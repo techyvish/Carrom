@@ -55,7 +55,7 @@
 #pragma mark -
 #pragma mark Director - global variables (optimization)
 
-CGFloat	__ccContentScaleFactor = 1;
+CGFloat	__ccContentScaleFactor = 2;
 
 #pragma mark -
 #pragma mark Director iOS
