@@ -1910,6 +1910,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Vishal Patel (288E6BRTHE)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vishal Patel (288E6BRTHE)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1929,6 +1931,8 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = CrazyBall;
+				PROVISIONING_PROFILE = "7293B233-D9FF-413F-B540-3E4633B8D2BB";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7293B233-D9FF-413F-B540-3E4633B8D2BB";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
