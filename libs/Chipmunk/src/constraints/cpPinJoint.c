@@ -19,16 +19,14 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
-//#include <math.h>
-
 #include "chipmunk_private.h"
 #include "constraints/util.h"
 
 static void
-preStep(cpPinJoint *joint, cpFloat dt, cpFloat dt_inv)
+preStep(cpPinJoint *joint, cpFloat dt)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
 	joint->r1 = cpvrotate(joint->anchr1, a->rot);
 	joint->r2 = cpvrotate(joint->anchr2, b->rot);
@@ -42,29 +40,35 @@ preStep(cpPinJoint *joint, cpFloat dt, cpFloat dt_inv)
 	
 	// calculate bias velocity
 	cpFloat maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-joint->constraint.biasCoef*dt_inv*(dist - joint->dist), -maxBias, maxBias);
+	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*(dist - joint->dist)/dt, -maxBias, maxBias);
+}
+
+static void
+applyCachedImpulse(cpPinJoint *joint, cpFloat dt_coef)
+{
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
-	// compute max impulse
-	joint->jnMax = J_MAX(joint, dt);
-	
-	// apply accumulated impulse
-	cpVect j = cpvmult(joint->n, joint->jnAcc);
+	cpVect j = cpvmult(joint->n, joint->jnAcc*dt_coef);
 	apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
 static void
-applyImpulse(cpPinJoint *joint)
+applyImpulse(cpPinJoint *joint, cpFloat dt)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	cpVect n = joint->n;
 
 	// compute relative velocity
 	cpFloat vrn = normal_relative_velocity(a, b, joint->r1, joint->r2, n);
 	
+	cpFloat jnMax = joint->constraint.maxForce*dt;
+	
 	// compute normal impulse
 	cpFloat jn = (joint->bias - vrn)*joint->nMass;
 	cpFloat jnOld = joint->jnAcc;
-	joint->jnAcc = cpfclamp(jnOld + jn, -joint->jnMax, joint->jnMax);
+	joint->jnAcc = cpfclamp(jnOld + jn, -jnMax, jnMax);
 	jn = joint->jnAcc - jnOld;
 	
 	// apply impulse
@@ -78,17 +82,18 @@ getImpulse(cpPinJoint *joint)
 }
 
 static const cpConstraintClass klass = {
-	(cpConstraintPreStepFunction)preStep,
-	(cpConstraintApplyImpulseFunction)applyImpulse,
-	(cpConstraintGetImpulseFunction)getImpulse,
+	(cpConstraintPreStepImpl)preStep,
+	(cpConstraintApplyCachedImpulseImpl)applyCachedImpulse,
+	(cpConstraintApplyImpulseImpl)applyImpulse,
+	(cpConstraintGetImpulseImpl)getImpulse,
 };
-CP_DefineClassGetter(cpPinJoint);
+CP_DefineClassGetter(cpPinJoint)
 
 
 cpPinJoint *
 cpPinJointAlloc(void)
 {
-	return (cpPinJoint *)cpmalloc(sizeof(cpPinJoint));
+	return (cpPinJoint *)cpcalloc(1, sizeof(cpPinJoint));
 }
 
 cpPinJoint *
@@ -103,6 +108,8 @@ cpPinJointInit(cpPinJoint *joint, cpBody *a, cpBody *b, cpVect anchr1, cpVect an
 	cpVect p1 = (a ? cpvadd(a->p, cpvrotate(anchr1, a->rot)) : anchr1);
 	cpVect p2 = (b ? cpvadd(b->p, cpvrotate(anchr2, b->rot)) : anchr2);
 	joint->dist = cpvlength(cpvsub(p2, p1));
+	
+	cpAssertWarn(joint->dist > 0.0, "You created a 0 length pin joint. A pivot joint will be much more stable.");
 
 	joint->jnAcc = 0.0f;
 	

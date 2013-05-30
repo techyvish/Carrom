@@ -2,6 +2,7 @@
  * cocos2d for iPhone: http://www.cocos2d-iphone.org
  *
  * Copyright (c) 2008-2010 Ricardo Quesada
+ * Copyright (c) 2011 Zynga Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +10,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +25,6 @@
  */
 
 
-#import "CCBlockSupport.h"
 #import "CCActionInstant.h"
 #import "CCNode.h"
 #import "CCSprite.h"
@@ -39,9 +39,9 @@
 
 -(id) init
 {
-	if( (self=[super init]) )	
-		duration_ = 0;
-	
+	if( (self=[super init]) )
+		_duration = 0;
+
 	return self;
 }
 
@@ -63,7 +63,7 @@
 
 -(void) update: (ccTime) t
 {
-	// ignore
+	// nothing
 }
 
 -(CCFiniteTimeAction*) reverse
@@ -78,10 +78,9 @@
 #pragma mark CCShow
 
 @implementation CCShow
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	((CCNode *)target_).visible = YES;
+	((CCNode *)_target).visible = YES;
 }
 
 -(CCFiniteTimeAction*) reverse
@@ -96,10 +95,9 @@
 #pragma mark CCHide
 
 @implementation CCHide
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	((CCNode *)target_).visible = NO;
+	((CCNode *)_target).visible = NO;
 }
 
 -(CCFiniteTimeAction*) reverse
@@ -114,10 +112,9 @@
 #pragma mark CCToggleVisibility
 
 @implementation CCToggleVisibility
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	((CCNode *)target_).visible = !((CCNode *)target_).visible;
+	((CCNode *)_target).visible = !((CCNode *)_target).visible;
 }
 @end
 
@@ -135,25 +132,24 @@
 -(id) initWithFlipX:(BOOL)x
 {
 	if(( self=[super init]))
-		flipX = x;
-	
+		_flipX = x;
+
 	return self;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	[(CCSprite*)aTarget setFlipX:flipX];
+	[(CCSprite*)_target setFlipX:_flipX];
 }
 
 -(CCFiniteTimeAction*) reverse
 {
-	return [CCFlipX actionWithFlipX:!flipX];
+	return [CCFlipX actionWithFlipX:!_flipX];
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithFlipX:flipX];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithFlipX:_flipX];
 	return copy;
 }
 @end
@@ -172,25 +168,24 @@
 -(id) initWithFlipY:(BOOL)y
 {
 	if(( self=[super init]))
-		flipY = y;
-	
+		_flipY = y;
+
 	return self;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	[(CCSprite*)aTarget setFlipY:flipY];
+	[(CCSprite*)_target setFlipY:_flipY];
 }
 
 -(CCFiniteTimeAction*) reverse
 {
-	return [CCFlipY actionWithFlipY:!flipY];
+	return [CCFlipY actionWithFlipY:!_flipY];
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithFlipY:flipY];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithFlipY:_flipY];
 	return copy;
 }
 @end
@@ -210,21 +205,20 @@
 -(id) initWithPosition: (CGPoint) pos
 {
 	if( (self=[super init]) )
-		position = pos;
-	
+		_position = pos;
+
 	return self;
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithPosition: position];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithPosition: _position];
 	return copy;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
-	((CCNode *)target_).position = position;
+	((CCNode *)_target).position = _position;
 }
 
 @end
@@ -235,6 +229,9 @@
 #pragma mark CCCallFunc
 
 @implementation CCCallFunc
+
+@synthesize targetCallback = _targetCallback;
+
 +(id) actionWithTarget: (id) t selector:(SEL) s
 {
 	return [[[self alloc] initWithTarget: t selector: s] autorelease];
@@ -243,44 +240,42 @@
 -(id) initWithTarget: (id) t selector:(SEL) s
 {
 	if( (self=[super init]) ) {
-		targetCallback_ = [t retain];
-		selector_ = s;
+		self.targetCallback = t;
+		_selector = s;
 	}
 	return self;
 }
 
 -(NSString*) description
 {
-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i | target = %@ | selector = %@>",
+	return [NSString stringWithFormat:@"<%@ = %p | Tag = %ld | selector = %@>",
 			[self class],
 			self,
-			tag_,
-			[targetCallback_ class],
-			NSStringFromSelector(selector_)
+			(long)_tag,
+			NSStringFromSelector(_selector)
 			];
 }
 
 -(void) dealloc
 {
-	[targetCallback_ release];
+	[_targetCallback release];
 	[super dealloc];
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:targetCallback_ selector:selector_];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:_targetCallback selector:_selector];
 	return copy;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
 	[self execute];
 }
 
 -(void) execute
 {
-	[targetCallback_ performSelector:selector_];
+	[_targetCallback performSelector:_selector];
 }
 @end
 
@@ -293,7 +288,7 @@
 
 -(void) execute
 {
-	[targetCallback_ performSelector:selector_ withObject:target_];
+	[_targetCallback performSelector:_selector withObject:_target];
 }
 @end
 
@@ -304,7 +299,7 @@
 
 @implementation CCCallFuncND
 
-@synthesize callbackMethod = callbackMethod_;
+@synthesize callbackMethod = _callbackMethod;
 
 +(id) actionWithTarget:(id)t selector:(SEL)s data:(void*)d
 {
@@ -314,20 +309,20 @@
 -(id) initWithTarget:(id)t selector:(SEL)s data:(void*)d
 {
 	if( (self=[super initWithTarget:t selector:s]) ) {
-		data_ = d;
+		_data = d;
 
 #if COCOS2D_DEBUG
 		NSMethodSignature * sig = [t methodSignatureForSelector:s]; // added
 		NSAssert(sig !=0 , @"Signature not found for selector - does it have the following form? -(void)name:(id)sender data:(void*)data");
 #endif
-		callbackMethod_ = (CC_CALLBACK_ND) [t methodForSelector:s];
+		_callbackMethod = (CC_CALLBACK_ND) [t methodForSelector:s];
 	}
 	return self;
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:targetCallback_ selector:selector_ data:data_];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:_targetCallback selector:_selector data:_data];
 	return copy;
 }
 
@@ -339,11 +334,12 @@
 
 -(void) execute
 {
-	callbackMethod_(targetCallback_,selector_,target_, data_);
+	_callbackMethod(_targetCallback,_selector,_target, _data);
 }
 @end
 
 @implementation CCCallFuncO
+@synthesize  object = _object;
 
 +(id) actionWithTarget: (id) t selector:(SEL) s object:(id)object
 {
@@ -353,27 +349,27 @@
 -(id) initWithTarget:(id) t selector:(SEL) s object:(id)object
 {
 	if( (self=[super initWithTarget:t selector:s] ) )
-		object_ = [object retain];
-	
+		self.object = object;
+
 	return self;
 }
 
 - (void) dealloc
 {
-	[object_ release];
+	[_object release];
 	[super dealloc];
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:targetCallback_ selector:selector_ object:object_];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithTarget:_targetCallback selector:_selector object:_object];
 	return copy;
 }
 
 
 -(void) execute
 {
-	[targetCallback_ performSelector:selector_ withObject:object_];
+	[_targetCallback performSelector:_selector withObject:_object];
 }
 
 @end
@@ -381,8 +377,6 @@
 
 #pragma mark -
 #pragma mark Blocks
-
-#if NS_BLOCKS_AVAILABLE
 
 #pragma mark CCCallBlock
 
@@ -396,31 +390,30 @@
 -(id) initWithBlock:(void(^)())block
 {
 	if ((self = [super init]))
-		block_ = [block copy];
-	
+		_block = [block copy];
+
 	return self;
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithBlock:block_];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithBlock:_block];
 	return copy;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
 	[self execute];
 }
 
 -(void) execute
 {
-	block_();
+	_block();
 }
 
 -(void) dealloc
 {
-	[block_ release];
+	[_block release];
 	[super dealloc];
 }
 
@@ -438,35 +431,79 @@
 -(id) initWithBlock:(void(^)(CCNode *node))block
 {
 	if ((self = [super init]))
-		block_ = [block copy];
-	
+		_block = [block copy];
+
 	return self;
 }
 
 -(id) copyWithZone: (NSZone*) zone
 {
-	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithBlock:block_];
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithBlock:_block];
 	return copy;
 }
 
--(void) startWithTarget:(id)aTarget
+-(void) update:(ccTime)time
 {
-	[super startWithTarget:aTarget];
 	[self execute];
 }
 
 -(void) execute
 {
-	block_(target_);
+	_block(_target);
 }
 
 -(void) dealloc
 {
-	[block_ release];
+	[_block release];
 	[super dealloc];
 }
 
 @end
 
+#pragma mark CCCallBlockO
 
-#endif // NS_BLOCKS_AVAILABLE
+@implementation CCCallBlockO
+
+@synthesize object=_object;
+
++(id) actionWithBlock:(void(^)(id object))block object:(id)object
+{
+	return [[[self alloc] initWithBlock:block object:object] autorelease];
+}
+
+-(id) initWithBlock:(void(^)(id object))block object:(id)object
+{
+	if ((self = [super init])) {
+		_block = [block copy];
+		_object = [object retain];
+	}
+
+	return self;
+}
+
+-(id) copyWithZone: (NSZone*) zone
+{
+	CCActionInstant *copy = [[[self class] allocWithZone: zone] initWithBlock:_block];
+	return copy;
+}
+
+-(void) update:(ccTime)time
+{
+	[self execute];
+}
+
+-(void) execute
+{
+	_block(_object);
+}
+
+-(void) dealloc
+{
+	[_object release];
+	[_block release];
+
+	[super dealloc];
+}
+
+@end
+

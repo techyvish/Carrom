@@ -19,8 +19,12 @@
  * SOFTWARE.
  */
 
-const cpConstraintClass *cpRatchetJointGetClass();
+/// @defgroup cpRatchetJoint cpRatchetJoint
+/// @{
 
+const cpConstraintClass *cpRatchetJointGetClass(void);
+
+/// @private
 typedef struct cpRatchetJoint {
 	cpConstraint constraint;
 	cpFloat angle, phase, ratchet;
@@ -28,13 +32,18 @@ typedef struct cpRatchetJoint {
 	cpFloat iSum;
 		
 	cpFloat bias;
-	cpFloat jAcc, jMax;
+	cpFloat jAcc;
 } cpRatchetJoint;
 
-cpRatchetJoint *cpRatchetJointAlloc(void);
-cpRatchetJoint *cpRatchetJointInit(cpRatchetJoint *joint, cpBody *a, cpBody *b, cpFloat phase, cpFloat ratchet);
-cpConstraint *cpRatchetJointNew(cpBody *a, cpBody *b, cpFloat phase, cpFloat ratchet);
+/// Allocate a ratchet joint.
+cpRatchetJoint* cpRatchetJointAlloc(void);
+/// Initialize a ratched joint.
+cpRatchetJoint* cpRatchetJointInit(cpRatchetJoint *joint, cpBody *a, cpBody *b, cpFloat phase, cpFloat ratchet);
+/// Allocate and initialize a ratchet joint.
+cpConstraint* cpRatchetJointNew(cpBody *a, cpBody *b, cpFloat phase, cpFloat ratchet);
 
-CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, angle, Angle);
-CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, phase, Phase);
-CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, ratchet, Ratchet);
+CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, angle, Angle)
+CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, phase, Phase)
+CP_DefineConstraintProperty(cpRatchetJoint, cpFloat, ratchet, Ratchet)
+
+/// @}

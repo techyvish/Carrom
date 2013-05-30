@@ -2,17 +2,18 @@
  * cocos2d for iPhone: http://www.cocos2d-iphone.org
  *
  * Copyright (c) 2009-2010 Ricardo Quesada
- * 
+ * Copyright (c) 2011 Zynga Inc.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,15 +35,17 @@
  * since the user should not use them.
  *
  */
- 
 
-#import <Availability.h>
+
 #import <Foundation/Foundation.h>
+
+#import "ccMacros.h"
 
 enum {
 	TMXLayerAttribNone = 1 << 0,
 	TMXLayerAttribBase64 = 1 << 1,
 	TMXLayerAttribGzip = 1 << 2,
+	TMXLayerAttribZlib = 1 << 3,
 };
 
 enum {
@@ -54,26 +57,37 @@ enum {
 	TMXPropertyTile
 };
 
+typedef enum ccTMXTileFlags_ {
+	kCCTMXTileHorizontalFlag		= 0x80000000,
+	kCCTMXTileVerticalFlag			= 0x40000000,
+	kCCTMXTileDiagonalFlag			= 0x20000000,
+
+	kCCFlipedAll					= (kCCTMXTileHorizontalFlag|kCCTMXTileVerticalFlag|kCCTMXTileDiagonalFlag),
+	kCCFlippedMask					= ~(kCCFlipedAll),
+} ccTMXTileFlags;
+
+// Bits on the far end of the 32-bit global tile ID (GID's) are used for tile flags
+
 /* CCTMXLayerInfo contains the information about the layers like:
  - Layer name
  - Layer size
  - Layer opacity at creation time (it can be modified at runtime)
- - Whether the layer is visible (if it's not visible, then the CocosNode won't be created)
- 
+ - Whether the layer is visible (if it is not visible, then the CCNode won't be created)
+
  This information is obtained from the TMX file.
  */
 @interface CCTMXLayerInfo : NSObject
 {
-	NSString			*name_;
-	CGSize				layerSize_;
-	unsigned int		*tiles_;
-	BOOL				visible_;
-	unsigned char		opacity_;
-	BOOL				ownTiles_;
-	unsigned int		minGID_;
-	unsigned int		maxGID_;
-	NSMutableDictionary	*properties_;
-	CGPoint				offset_;
+	NSString			*_name;
+	CGSize				_layerSize;
+	unsigned int		*_tiles;
+	BOOL				_visible;
+	unsigned char		_opacity;
+	BOOL				_ownTiles;
+	unsigned int		_minGID;
+	unsigned int		_maxGID;
+	NSMutableDictionary	*_properties;
+	CGPoint				_offset;
 }
 
 @property (nonatomic,readwrite,retain)	NSString *name;
@@ -95,22 +109,31 @@ enum {
  - size of the tiles
  - Image used for the tiles
  - Image size
- 
- This information is obtained from the TMX file. 
+
+ This information is obtained from the TMX file.
  */
 @interface CCTMXTilesetInfo : NSObject
 {
-	NSString		*name_;
-	unsigned int	firstGid_;
-	CGSize			tileSize_;
-	unsigned int	spacing_;
-	unsigned int	margin_;
+	NSString		*_name;
+	unsigned int	_firstGid;
+	CGSize			_tileSize;
+	unsigned int	_spacing;
+	unsigned int	_margin;
 	
+	//	Offset of tiles. New TMX XML node introduced here: https://github.com/bjorn/tiled/issues/16 .
+	//	Node structure:
+	//	(...) <tileset firstgid="1" name="mytileset-ipad" tilewidth="40" tileheight="40" spacing="1" margin="1">
+	//			  <tileoffset x="0" y="10"/>
+	//			  <image source="mytileset-ipad.png" width="256" height="256"/>
+	//	(...)
+	CGPoint         _tileOffset;
+	CGPoint			_tileAnchorPoint; //normalized anchor point	
+
 	// filename containing the tiles (should be spritesheet / texture atlas)
-	NSString	*sourceImage_;
-	
+	NSString	*_sourceImage;
+
 	// size in pixels of the image
-	CGSize		imageSize_;
+	CGSize		_imageSize;
 }
 @property (nonatomic,readwrite,retain) NSString *name;
 @property (nonatomic,readwrite,assign) unsigned int firstGid;
@@ -119,6 +142,8 @@ enum {
 @property (nonatomic,readwrite,assign) unsigned int margin;
 @property (nonatomic,readwrite,retain) NSString *sourceImage;
 @property (nonatomic,readwrite,assign) CGSize imageSize;
+@property (nonatomic,readwrite,assign) CGPoint tileOffset; //setter has a custom implementation
+@property (nonatomic,readonly,assign) CGPoint tileAnchorPoint; //set automatically when tileOffset changes
 
 -(CGRect) rectForGID:(unsigned int)gid;
 @end
@@ -127,59 +152,53 @@ enum {
  - Map orientation (hexagonal, isometric or orthogonal)
  - Tile size
  - Map size
- 
+
  And it also contains:
  - Layers (an array of TMXLayerInfo objects)
  - Tilesets (an array of TMXTilesetInfo objects)
  - ObjectGroups (an array of TMXObjectGroupInfo objects)
- 
+
  This information is obtained from the TMX file.
- 
+
  */
-#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
-#if defined(__IPHONE_4_0)
 @interface CCTMXMapInfo : NSObject <NSXMLParserDelegate>
-#else
-@interface CCTMXMapInfo : NSObject
-#endif
+{
+	NSMutableString		*_currentString;
+    BOOL				_storingCharacters;
+	int					_layerAttribs;
+	int					_parentElement;
+	unsigned int		_parentGID;
+	unsigned int		_currentFirstGID;
 
-#elif defined(__MAC_OS_X_VERSION_MAX_ALLOWED)
-@interface CCTMXMapInfo : NSObject <NSXMLParserDelegate>
-#endif
-{	
-	NSMutableString	*currentString;
-    BOOL				storingCharacters;	
-	int					layerAttribs;
-	int					parentElement;
-	unsigned int		parentGID_;
-
-	
 	// tmx filename
-	NSString *filename_;
+	NSString *_filename;
+
+	// tmx resource path
+	NSString *_resources;
 
 	// map orientation
-	int	orientation_;	
-	
+	int		_orientation;
+
 	// map width & height
-	CGSize	mapSize_;
-	
+	CGSize	_mapSize;
+
 	// tiles width & height
-	CGSize	tileSize_;
-	
+	CGSize	_tileSize;
+
 	// Layers
-	NSMutableArray *layers_;
-	
+	NSMutableArray *_layers;
+
 	// tilesets
-	NSMutableArray *tilesets_;
-		
+	NSMutableArray *_tilesets;
+
 	// ObjectGroups
-	NSMutableArray *objectGroups_;
-	
+	NSMutableArray *_objectGroups;
+
 	// properties
-	NSMutableDictionary *properties_;
-	
+	NSMutableDictionary *_properties;
+
 	// tile properties
-	NSMutableDictionary *tileProperties_;
+	NSMutableDictionary *_tileProperties;
 }
 
 @property (nonatomic,readwrite,assign) int orientation;
@@ -188,13 +207,22 @@ enum {
 @property (nonatomic,readwrite,retain) NSMutableArray *layers;
 @property (nonatomic,readwrite,retain) NSMutableArray *tilesets;
 @property (nonatomic,readwrite,retain) NSString *filename;
+@property (nonatomic,readwrite,retain) NSString *resources;
 @property (nonatomic,readwrite,retain) NSMutableArray *objectGroups;
 @property (nonatomic,readwrite,retain) NSMutableDictionary *properties;
 @property (nonatomic,readwrite,retain) NSMutableDictionary *tileProperties;
 
 /** creates a TMX Format with a tmx file */
 +(id) formatWithTMXFile:(NSString*)tmxFile;
-/** initializes a TMX format witha  tmx file */
+
+/** creates a TMX Format with an XML string and a TMX resource path */
++(id) formatWithXML:(NSString*)tmxString resourcePath:(NSString*)resourcePath;
+
+/** initializes a TMX format with a tmx file */
 -(id) initWithTMXFile:(NSString*)tmxFile;
+
+/** initializes a TMX format with an XML string and a TMX resource path */
+-(id) initWithXML:(NSString*)tmxString resourcePath:(NSString*)resourcePath;
+
 @end
 

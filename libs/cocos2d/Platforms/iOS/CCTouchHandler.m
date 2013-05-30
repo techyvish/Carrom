@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,8 +26,8 @@
 
 // Only compile this code on iOS. These files should NOT be included on your Mac project.
 // But in case they are included, it won't be compiled.
-#import <Availability.h>
-#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
+#import "../../ccMacros.h"
+#ifdef __CC_PLATFORM_IOS
 
 /*
  * This file contains the delegates of the touches
@@ -43,8 +43,8 @@
 #pragma mark TouchHandler
 @implementation CCTouchHandler
 
-@synthesize delegate, priority;
-@synthesize enabledSelectors=enabledSelectors_;
+@synthesize delegate=_delegate, priority=_priority;
+@synthesize enabledSelectors=_enabledSelectors;
 
 + (id)handlerWithDelegate:(id) aDelegate priority:(int)aPriority
 {
@@ -54,19 +54,19 @@
 - (id)initWithDelegate:(id) aDelegate priority:(int)aPriority
 {
 	NSAssert(aDelegate != nil, @"Touch delegate may not be nil");
-	
+
 	if ((self = [super init])) {
 		self.delegate = aDelegate;
-		priority = aPriority;
-		enabledSelectors_ = 0;
+		_priority = aPriority;
+		_enabledSelectors = 0;
 	}
-	
+
 	return self;
 }
 
 - (void)dealloc {
 	CCLOGINFO(@"cocos2d: deallocing %@", self);
-	[delegate release];
+	[_delegate release];
 	[super dealloc];
 }
 @end
@@ -78,13 +78,13 @@
 {
 	if( (self=[super initWithDelegate:del priority:pri]) ) {
 		if( [del respondsToSelector:@selector(ccTouchesBegan:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorBeganBit;
+			_enabledSelectors |= kCCTouchSelectorBeganBit;
 		if( [del respondsToSelector:@selector(ccTouchesMoved:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorMovedBit;
+			_enabledSelectors |= kCCTouchSelectorMovedBit;
 		if( [del respondsToSelector:@selector(ccTouchesEnded:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorEndedBit;
+			_enabledSelectors |= kCCTouchSelectorEndedBit;
 		if( [del respondsToSelector:@selector(ccTouchesCancelled:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorCancelledBit;
+			_enabledSelectors |= kCCTouchSelectorCancelledBit;
 	}
 	return self;
 }
@@ -99,7 +99,7 @@
 
 @implementation CCTargetedTouchHandler
 
-@synthesize swallowsTouches, claimedTouches;
+@synthesize swallowsTouches=_swallowsTouches, claimedTouches=_claimedTouches;
 
 + (id)handlerWithDelegate:(id)aDelegate priority:(int)priority swallowsTouches:(BOOL)swallow
 {
@@ -108,28 +108,28 @@
 
 - (id)initWithDelegate:(id)aDelegate priority:(int)aPriority swallowsTouches:(BOOL)swallow
 {
-	if ((self = [super initWithDelegate:aDelegate priority:aPriority])) {	
-		claimedTouches = [[NSMutableSet alloc] initWithCapacity:2];
-		swallowsTouches = swallow;
-		
+	if ((self = [super initWithDelegate:aDelegate priority:aPriority])) {
+		_claimedTouches = [[NSMutableSet alloc] initWithCapacity:2];
+		_swallowsTouches = swallow;
+
 		if( [aDelegate respondsToSelector:@selector(ccTouchBegan:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorBeganBit;
+			_enabledSelectors |= kCCTouchSelectorBeganBit;
 		if( [aDelegate respondsToSelector:@selector(ccTouchMoved:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorMovedBit;
+			_enabledSelectors |= kCCTouchSelectorMovedBit;
 		if( [aDelegate respondsToSelector:@selector(ccTouchEnded:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorEndedBit;
+			_enabledSelectors |= kCCTouchSelectorEndedBit;
 		if( [aDelegate respondsToSelector:@selector(ccTouchCancelled:withEvent:)] )
-			enabledSelectors_ |= kCCTouchSelectorCancelledBit;
+			_enabledSelectors |= kCCTouchSelectorCancelledBit;
 	}
-	
+
 	return self;
 }
 
 - (void)dealloc {
-	[claimedTouches release];
+	[_claimedTouches release];
 	[super dealloc];
 }
 @end
 
 
-#endif // __IPHONE_OS_VERSION_MAX_ALLOWED
+#endif // __CC_PLATFORM_IOS

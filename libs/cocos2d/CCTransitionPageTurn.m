@@ -2,17 +2,17 @@
  * cocos2d for iPhone: http://www.cocos2d-iphone.org
  *
  * Copyright (c) 2009 Sindesso Pty Ltd http://www.sindesso.com/
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,7 @@
 -(id) initWithDuration:(ccTime) t scene:(CCScene*)s backwards:(BOOL) back
 {
 	// XXX: needed before [super init]
-	back_ = back;
+	_back = back;
 
 	if( ( self = [super initWithDuration:t scene:s] ) )
 	{
@@ -51,14 +51,14 @@
 
 -(void) sceneOrder
 {
-	inSceneOnTop_ = back_;
+	_inSceneOnTop = _back;
 }
 
 //
 -(void) onEnter
 {
 	[super onEnter];
-	
+
 	CGSize s = [[CCDirector sharedDirector] winSize];
 	int x, y;
 	if( s.width > s.height)
@@ -71,12 +71,12 @@
 		x = 12;
 		y = 16;
 	}
-	
-	id action  = [self actionWithSize:ccg(x,y)];
-	
-	if(! back_ )
+
+	id action  = [self actionWithSize:CGSizeMake(x,y)];
+
+	if(! _back )
 	{
-		[outScene_ runAction: [CCSequence actions:
+		[_outScene runAction: [CCSequence actions:
 							  action,
 							  [CCCallFunc actionWithTarget:self selector:@selector(finish)],
 							  [CCStopGrid action],
@@ -86,8 +86,8 @@
 	else
 	{
 		// to prevent initial flicker
-		inScene_.visible = NO;
-		[inScene_ runAction: [CCSequence actions:
+		_inScene.visible = NO;
+		[_inScene runAction: [CCSequence actions:
 							 [CCShow action],
 							 action,
 							 [CCCallFunc actionWithTarget:self selector:@selector(finish)],
@@ -95,21 +95,21 @@
 							 nil]
 		 ];
 	}
-	
+
 }
 
--(CCActionInterval*) actionWithSize: (ccGridSize) v
+-(CCActionInterval*) actionWithSize: (CGSize) v
 {
-	if( back_ )
+	if( _back )
 	{
 		// Get hold of the PageTurn3DAction
 		return [CCReverseTime actionWithAction:
-				[CCPageTurn3D actionWithSize:v duration:duration_]];
+				[CCPageTurn3D actionWithDuration:_duration size:v]];
 	}
 	else
 	{
 		// Get hold of the PageTurn3DAction
-		return [CCPageTurn3D actionWithSize:v duration:duration_];
+		return [CCPageTurn3D actionWithDuration:_duration size:v];
 	}
 }
 

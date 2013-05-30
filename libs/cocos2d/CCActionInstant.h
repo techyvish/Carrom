@@ -2,6 +2,7 @@
  * cocos2d for iPhone: http://www.cocos2d-iphone.org
  *
  * Copyright (c) 2008-2010 Ricardo Quesada
+ * Copyright (c) 2011 Zynga Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +10,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,10 +29,12 @@
 
 /** Instant actions are immediate actions. They don't have a duration like
  the CCIntervalAction actions.
-*/ 
+*/
 @interface CCActionInstant : CCFiniteTimeAction <NSCopying>
 {
 }
+// XXX Needed for BridgeSupport
+-(id) init;
 @end
 
 /** Show the node
@@ -39,6 +42,8 @@
  @interface CCShow : CCActionInstant
 {
 }
+// XXX Needed for BridgeSupport
+-(void) update:(ccTime)time;
 @end
 
 /** Hide the node
@@ -46,6 +51,7 @@
 @interface CCHide : CCActionInstant
 {
 }
+-(void) update:(ccTime)time;
 @end
 
 /** Toggles the visibility of a node
@@ -53,6 +59,7 @@
 @interface CCToggleVisibility : CCActionInstant
 {
 }
+-(void) update:(ccTime)time;
 @end
 
 /** Flips the sprite horizontally
@@ -60,7 +67,7 @@
  */
 @interface CCFlipX : CCActionInstant
 {
-	BOOL	flipX;
+	BOOL	_flipX;
 }
 +(id) actionWithFlipX:(BOOL)x;
 -(id) initWithFlipX:(BOOL)x;
@@ -71,7 +78,7 @@
  */
 @interface CCFlipY : CCActionInstant
 {
-	BOOL	flipY;
+	BOOL	_flipY;
 }
 +(id) actionWithFlipY:(BOOL)y;
 -(id) initWithFlipY:(BOOL)y;
@@ -81,7 +88,7 @@
  */
 @interface CCPlace : CCActionInstant <NSCopying>
 {
-	CGPoint position;
+	CGPoint _position;
 }
 /** creates a Place action with a position */
 +(id) actionWithPosition: (CGPoint) pos;
@@ -93,14 +100,18 @@
  */
 @interface CCCallFunc : CCActionInstant <NSCopying>
 {
-	id targetCallback_;
-	SEL selector_;
+	id _targetCallback;
+	SEL _selector;
 }
+
+/** Target that will be called */
+@property (nonatomic, readwrite, retain) id targetCallback;
+
 /** creates the action with the callback */
 +(id) actionWithTarget: (id) t selector:(SEL) s;
 /** initializes the action with the callback */
 -(id) initWithTarget: (id) t selector:(SEL) s;
-/** exeuctes the callback */
+/** executes the callback */
 -(void) execute;
 @end
 
@@ -110,6 +121,8 @@
 @interface CCCallFuncN : CCCallFunc
 {
 }
+// XXX: Needed for BridgeSupport
+-(void) execute;
 @end
 
 typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
@@ -118,8 +131,8 @@ typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
  */
 @interface CCCallFuncND : CCCallFuncN
 {
-	void			*data_;
-	CC_CALLBACK_ND	callbackMethod_;
+	void			*_data;
+	CC_CALLBACK_ND	_callbackMethod;
 }
 
 /** Invocation object that has the target#selector and the parameters */
@@ -137,8 +150,11 @@ typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
  */
 @interface CCCallFuncO : CCCallFunc
 {
-	id	object_;
+	id	_object;
 }
+/** object to be passed as argument */
+@property (nonatomic, readwrite, retain) id object;
+
 /** creates the action with the callback and the object to pass as an argument */
 +(id) actionWithTarget: (id) t selector:(SEL) s object:(id)object;
 /** initializes the action with the callback and the object to pass as an argument */
@@ -148,13 +164,11 @@ typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
 
 #pragma mark Blocks Support
 
-#if NS_BLOCKS_AVAILABLE
-
 /** Executes a callback using a block.
  */
 @interface CCCallBlock : CCActionInstant<NSCopying>
 {
-	void (^block_)();
+	void (^_block)();
 }
 
 /** creates the action with the specified block, to be used as a callback.
@@ -177,7 +191,7 @@ typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
  */
 @interface CCCallBlockN : CCActionInstant<NSCopying>
 {
-	void (^block_)(CCNode *);
+	void (^_block)(CCNode *);
 }
 
 /** creates the action with the specified block, to be used as a callback.
@@ -194,4 +208,28 @@ typedef void (*CC_CALLBACK_ND)(id, SEL, id, void *);
 -(void) execute;
 @end
 
-#endif
+/** Executes a callback using a block with a single NSObject parameter.
+ @since v2.0
+ */
+@interface CCCallBlockO : CCActionInstant<NSCopying>
+{
+	void (^_block)(id object);
+	id _object;
+}
+
+/** object to be passed to the block */
+@property (nonatomic,retain) id object;
+
+/** creates the action with the specified block, to be used as a callback.
+ The block will be "copied".
+ */
++(id) actionWithBlock:(void(^)(id object))block object:(id)object;
+
+/** initialized the action with the specified block, to be used as a callback.
+ The block will be "copied".
+ */
+-(id) initWithBlock:(void(^)(id object))block object:(id)object;
+
+/** executes the callback */
+-(void) execute;
+@end

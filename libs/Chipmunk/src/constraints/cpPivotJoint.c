@@ -19,37 +19,40 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
-
 #include "chipmunk_private.h"
 #include "constraints/util.h"
 
 static void
-preStep(cpPivotJoint *joint, cpFloat dt, cpFloat dt_inv)
+preStep(cpPivotJoint *joint, cpFloat dt)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
 	joint->r1 = cpvrotate(joint->anchr1, a->rot);
 	joint->r2 = cpvrotate(joint->anchr2, b->rot);
 	
 	// Calculate mass tensor
-	k_tensor(a, b, joint->r1, joint->r2, &joint->k1, &joint->k2);
-	
-	// compute max impulse
-	joint->jMaxLen = J_MAX(joint, dt);
+	joint-> k = k_tensor(a, b, joint->r1, joint->r2);
 	
 	// calculate bias velocity
 	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	joint->bias = cpvclamp(cpvmult(delta, -joint->constraint.biasCoef*dt_inv), joint->constraint.maxBias);
-	
-	// apply accumulated impulse
-	apply_impulses(a, b, joint->r1, joint->r2, joint->jAcc);
+	joint->bias = cpvclamp(cpvmult(delta, -bias_coef(joint->constraint.errorBias, dt)/dt), joint->constraint.maxBias);
 }
 
 static void
-applyImpulse(cpPivotJoint *joint)
+applyCachedImpulse(cpPivotJoint *joint, cpFloat dt_coef)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
+	
+	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(joint->jAcc, dt_coef));
+}
+
+static void
+applyImpulse(cpPivotJoint *joint, cpFloat dt)
+{
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
 	cpVect r1 = joint->r1;
 	cpVect r2 = joint->r2;
@@ -58,9 +61,9 @@ applyImpulse(cpPivotJoint *joint)
 	cpVect vr = relative_velocity(a, b, r1, r2);
 	
 	// compute normal impulse
-	cpVect j = mult_k(cpvsub(joint->bias, vr), joint->k1, joint->k2);
+	cpVect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
 	cpVect jOld = joint->jAcc;
-	joint->jAcc = cpvclamp(cpvadd(joint->jAcc, j), joint->jMaxLen);
+	joint->jAcc = cpvclamp(cpvadd(joint->jAcc, j), joint->constraint.maxForce*dt);
 	j = cpvsub(joint->jAcc, jOld);
 	
 	// apply impulse
@@ -74,16 +77,17 @@ getImpulse(cpConstraint *joint)
 }
 
 static const cpConstraintClass klass = {
-	(cpConstraintPreStepFunction)preStep,
-	(cpConstraintApplyImpulseFunction)applyImpulse,
-	(cpConstraintGetImpulseFunction)getImpulse,
+	(cpConstraintPreStepImpl)preStep,
+	(cpConstraintApplyCachedImpulseImpl)applyCachedImpulse,
+	(cpConstraintApplyImpulseImpl)applyImpulse,
+	(cpConstraintGetImpulseImpl)getImpulse,
 };
 CP_DefineClassGetter(cpPivotJoint)
 
 cpPivotJoint *
 cpPivotJointAlloc(void)
 {
-	return (cpPivotJoint *)cpmalloc(sizeof(cpPivotJoint));
+	return (cpPivotJoint *)cpcalloc(1, sizeof(cpPivotJoint));
 }
 
 cpPivotJoint *

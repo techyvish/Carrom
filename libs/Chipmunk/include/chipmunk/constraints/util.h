@@ -19,22 +19,13 @@
  * SOFTWARE.
  */
 
-#define CP_DefineClassGetter(t) const cpConstraintClass * t##GetClass(){return (cpConstraintClass *)&klass;}
+// These are utility routines to use when creating custom constraints.
+// I'm not sure if this should be part of the private API or not.
+// I should probably clean up the naming conventions if it is...
+
+#define CP_DefineClassGetter(t) const cpConstraintClass * t##GetClass(void){return (cpConstraintClass *)&klass;}
 
 void cpConstraintInit(cpConstraint *constraint, const cpConstraintClass *klass, cpBody *a, cpBody *b);
-
-#define J_MAX(constraint, dt) (((cpConstraint *)constraint)->maxForce*(dt))
-
-// Get valid body pointers and exit early if the bodies are idle
-#define CONSTRAINT_BEGIN(constraint, a_var, b_var) \
-cpBody *a_var, *b_var; { \
-	a_var = ((cpConstraint *)constraint)->a; \
-	b_var = ((cpConstraint *)constraint)->b; \
-	if( \
-		(cpBodyIsSleeping(a_var) || cpBodyIsStatic(a_var)) && \
-		(cpBodyIsSleeping(b_var) || cpBodyIsStatic(b_var)) \
-	) return; \
-}
 
 static inline cpVect
 relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2){
@@ -50,17 +41,23 @@ normal_relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n){
 }
 
 static inline void
+apply_impulse(cpBody *body, cpVect j, cpVect r){
+	body->v = cpvadd(body->v, cpvmult(j, body->m_inv));
+	body->w += body->i_inv*cpvcross(r, j);
+}
+
+static inline void
 apply_impulses(cpBody *a , cpBody *b, cpVect r1, cpVect r2, cpVect j)
 {
-	cpBodyApplyImpulse(a, cpvneg(j), r1);
-	cpBodyApplyImpulse(b, j, r2);
+	apply_impulse(a, cpvneg(j), r1);
+	apply_impulse(b, j, r2);
 }
 
 static inline void
 apply_bias_impulse(cpBody *body, cpVect j, cpVect r)
 {
-	body->v_bias = cpvadd(body->v_bias, cpvmult(j, body->m_inv));
-	body->w_bias += body->i_inv*cpvcross(r, j);
+	body->CP_PRIVATE(v_bias) = cpvadd(body->CP_PRIVATE(v_bias), cpvmult(j, body->m_inv));
+	body->CP_PRIVATE(w_bias) += body->i_inv*cpvcross(r, j);
 }
 
 static inline void
@@ -70,37 +67,30 @@ apply_bias_impulses(cpBody *a , cpBody *b, cpVect r1, cpVect r2, cpVect j)
 	apply_bias_impulse(b, j, r2);
 }
 
-static inline cpVect
-clamp_vect(cpVect v, cpFloat len)
+static inline cpFloat
+k_scalar_body(cpBody *body, cpVect r, cpVect n)
 {
-	return cpvclamp(v, len);
-//	return (cpvdot(v,v) > len*len) ? cpvmult(cpvnormalize(v), len) : v;
+	cpFloat rcn = cpvcross(r, n);
+	return body->m_inv + body->i_inv*rcn*rcn;
 }
 
 static inline cpFloat
 k_scalar(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n)
 {
-	cpFloat mass_sum = a->m_inv + b->m_inv;
-	cpFloat r1cn = cpvcross(r1, n);
-	cpFloat r2cn = cpvcross(r2, n);
-	
-	cpFloat value = mass_sum + a->i_inv*r1cn*r1cn + b->i_inv*r2cn*r2cn;
-	cpAssert(value != 0.0, "Unsolvable collision or constraint.");
+	cpFloat value = k_scalar_body(a, r1, n) + k_scalar_body(b, r2, n);
+	cpAssertSoft(value != 0.0, "Unsolvable collision or constraint.");
 	
 	return value;
 }
 
-static inline void
-k_tensor(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect *k1, cpVect *k2)
+static inline cpMat2x2
+k_tensor(cpBody *a, cpBody *b, cpVect r1, cpVect r2)
 {
-	// calculate mass matrix
-	// If I wasn't lazy and wrote a proper matrix class, this wouldn't be so gross...
-	cpFloat k11, k12, k21, k22;
 	cpFloat m_sum = a->m_inv + b->m_inv;
 	
-	// start with I*m_sum
-	k11 = m_sum; k12 = 0.0f;
-	k21 = 0.0f;  k22 = m_sum;
+	// start with Identity*m_sum
+	cpFloat k11 = m_sum, k12 = 0.0f;
+	cpFloat k21 = 0.0f,  k22 = m_sum;
 	
 	// add the influence from r1
 	cpFloat a_i_inv = a->i_inv;
@@ -119,16 +109,18 @@ k_tensor(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect *k1, cpVect *k2)
 	k21 += r2nxy; k22 += r2xsq;
 	
 	// invert
-	cpFloat determinant = k11*k22 - k12*k21;
-	cpAssert(determinant != 0.0, "Unsolvable constraint.");
+	cpFloat det = k11*k22 - k12*k21;
+	cpAssertSoft(det != 0.0, "Unsolvable constraint.");
 	
-	cpFloat det_inv = 1.0f/determinant;
-	*k1 = cpv( k22*det_inv, -k12*det_inv);
-	*k2 = cpv(-k21*det_inv,  k11*det_inv);
+	cpFloat det_inv = 1.0f/det;
+	return cpMat2x2New(
+		 k22*det_inv, -k12*det_inv,
+		-k21*det_inv,  k11*det_inv
+ 	);
 }
 
-static inline cpVect
-mult_k(cpVect vr, cpVect k1, cpVect k2)
+static inline cpFloat
+bias_coef(cpFloat errorBias, cpFloat dt)
 {
-	return cpv(cpvdot(vr, k1), cpvdot(vr, k2));
+	return 1.0f - cpfpow(errorBias, dt);
 }

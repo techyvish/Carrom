@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,8 +34,8 @@
 */
 @interface CCProgressTo : CCActionInterval <NSCopying>
 {
-	float to_;
-	float from_;
+	float _to;
+	float _from;
 }
 /** Creates and initializes with a duration and a percent */
 +(id) actionWithDuration:(ccTime)duration percent:(float)percent;
@@ -49,8 +49,8 @@
  */
 @interface CCProgressFromTo : CCActionInterval <NSCopying>
 {
-	float to_;
-	float from_;
+	float _to;
+	float _from;
 }
 /** Creates and initializes the action with a duration, a "from" percentage and a "to" percentage */
 +(id) actionWithDuration:(ccTime)duration from:(float)fromPercentage to:(float) toPercentage;

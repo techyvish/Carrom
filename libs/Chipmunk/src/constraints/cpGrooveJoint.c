@@ -19,15 +19,14 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
-
 #include "chipmunk_private.h"
 #include "constraints/util.h"
 
 static void
-preStep(cpGrooveJoint *joint, cpFloat dt, cpFloat dt_inv)
+preStep(cpGrooveJoint *joint, cpFloat dt)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
 	// calculate endpoints in worldspace
 	cpVect ta = cpBodyLocal2World(a, joint->grv_a);
@@ -55,30 +54,34 @@ preStep(cpGrooveJoint *joint, cpFloat dt, cpFloat dt_inv)
 	}
 	
 	// Calculate mass tensor
-	k_tensor(a, b, joint->r1, joint->r2, &joint->k1, &joint->k2);	
-	
-	// compute max impulse
-	joint->jMaxLen = J_MAX(joint, dt);
+	joint->k = k_tensor(a, b, joint->r1, joint->r2);
 	
 	// calculate bias velocity
 	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	joint->bias = cpvclamp(cpvmult(delta, -joint->constraint.biasCoef*dt_inv), joint->constraint.maxBias);
-	
-	// apply accumulated impulse
-	apply_impulses(a, b, joint->r1, joint->r2, joint->jAcc);
-}
-
-static inline cpVect
-grooveConstrain(cpGrooveJoint *joint, cpVect j){
-	cpVect n = joint->grv_tn;
-	cpVect jClamp = (joint->clamp*cpvcross(j, n) > 0.0f) ? j : cpvproject(j, n);
-	return cpvclamp(jClamp, joint->jMaxLen);
+	joint->bias = cpvclamp(cpvmult(delta, -bias_coef(joint->constraint.errorBias, dt)/dt), joint->constraint.maxBias);
 }
 
 static void
-applyImpulse(cpGrooveJoint *joint)
+applyCachedImpulse(cpGrooveJoint *joint, cpFloat dt_coef)
 {
-	CONSTRAINT_BEGIN(joint, a, b);
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
+		
+	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(joint->jAcc, dt_coef));
+}
+
+static inline cpVect
+grooveConstrain(cpGrooveJoint *joint, cpVect j, cpFloat dt){
+	cpVect n = joint->grv_tn;
+	cpVect jClamp = (joint->clamp*cpvcross(j, n) > 0.0f) ? j : cpvproject(j, n);
+	return cpvclamp(jClamp, joint->constraint.maxForce*dt);
+}
+
+static void
+applyImpulse(cpGrooveJoint *joint, cpFloat dt)
+{
+	cpBody *a = joint->constraint.a;
+	cpBody *b = joint->constraint.b;
 	
 	cpVect r1 = joint->r1;
 	cpVect r2 = joint->r2;
@@ -86,9 +89,9 @@ applyImpulse(cpGrooveJoint *joint)
 	// compute impulse
 	cpVect vr = relative_velocity(a, b, r1, r2);
 
-	cpVect j = mult_k(cpvsub(joint->bias, vr), joint->k1, joint->k2);
+	cpVect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
 	cpVect jOld = joint->jAcc;
-	joint->jAcc = grooveConstrain(joint, cpvadd(jOld, j));
+	joint->jAcc = grooveConstrain(joint, cpvadd(jOld, j), dt);
 	j = cpvsub(joint->jAcc, jOld);
 	
 	// apply impulse
@@ -102,16 +105,17 @@ getImpulse(cpGrooveJoint *joint)
 }
 
 static const cpConstraintClass klass = {
-	(cpConstraintPreStepFunction)preStep,
-	(cpConstraintApplyImpulseFunction)applyImpulse,
-	(cpConstraintGetImpulseFunction)getImpulse,
+	(cpConstraintPreStepImpl)preStep,
+	(cpConstraintApplyCachedImpulseImpl)applyCachedImpulse,
+	(cpConstraintApplyImpulseImpl)applyImpulse,
+	(cpConstraintGetImpulseImpl)getImpulse,
 };
 CP_DefineClassGetter(cpGrooveJoint)
 
 cpGrooveJoint *
 cpGrooveJointAlloc(void)
 {
-	return (cpGrooveJoint *)cpmalloc(sizeof(cpGrooveJoint));
+	return (cpGrooveJoint *)cpcalloc(1, sizeof(cpGrooveJoint));
 }
 
 cpGrooveJoint *
